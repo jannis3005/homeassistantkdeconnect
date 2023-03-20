@@ -1,0 +1,15 @@
+{
+    "name": "KDE Connect",
+    "description": "Integration for KDE Connect, allowing control of media playback and device commands.",
+    "domain": "kdeconnect",
+    "documentation": "https://gitlab.jannis-goeing.de/Jannis3005/homeassistantkdeconnect/-/wikis/home",
+    "version": "0.1.0",
+    "category": "Integration",
+    "authors": ["Jannis Göing <gitlab-jannis3005-homeassistantkdeconnect-15-9vl8jbyg0w46kx4c22goc2yxs-issue@jannis-goeing.de>"],
+    "keywords": ["kdeconnect", "media player"],
+    "repository": "https://gitlab.jannis-goeing.de/Jannis3005/homeassistantkdeconnect/-/tree/main",
+    "config_flow": true,
+    "domain": "kdeconnect",
+    "frontend": true,
+    "python_script": false
+}

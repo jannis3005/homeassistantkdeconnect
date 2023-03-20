@@ -1,0 +1,21 @@
+{
+    "domain": "kdeconnect",
+    "name": "KDE Connect",
+    "documentation": "https://gitlab.jannis-goeing.de/Jannis3005/homeassistantkdeconnect/-/wikis/home",
+    "requirements": ["pykdeconnect"],
+    "dependencies": [],
+    "codeowners": [],
+    "version": "0.0.1",
+    "issue_tracker": "https://gitlab.jannis-goeing.de/Jannis3005/homeassistantkdeconnect/-/issues",
+    "quality_scale": "alpha",
+    "iot_class": "Local Polling",
+    "entities": [
+        {
+            "entity_category": "media_player",
+            "key": "media_player",
+            "icon": "mdi:cellphone",
+            "name": "KDE Connect Media Player"
+        }
+    ],
+    "config_flow": true
+}

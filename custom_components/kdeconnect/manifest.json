@@ -1,0 +1,11 @@
+{
+    "domain": "kdeconnect",
+    "name": "KDE Connect",
+    "version": "0.1",
+    "documentation": "https://github.com/jannis3005/homeassistantkdeconnect",
+    "dependencies": [],
+    "codeowners": ["@jannis3005"],
+    "requirements": ["dbus-python==1.2.18"],
+    "iot_class": "local",
+    "config_flow": true
+}

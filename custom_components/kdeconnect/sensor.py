@@ -1,7 +1,8 @@
 import logging
-import dbus
 from homeassistant.helpers.entity import Entity
 from homeassistant.const import DEVICE_CLASS_BATTERY
+
+from jeepney import new_method_call
 
 from . import DOMAIN, KDEConnect
 
@@ -11,16 +12,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     device_name = config_entry.data["device_name"]
     kdeconnect = KDEConnect(device_name)
     device = kdeconnect.get_device()
-    async_add_entities([KDEConnectBatterySensor(device), KDEConnectNetworkSensor(device)], True)
+    async_add_entities([KDEConnectBatterySensor(kdeconnect, device), KDEConnectNetworkSensor(device)], True)
 
 class KDEConnectBatterySensor(Entity):
-    def __init__(self, device):
+    def __init__(self, kdeconnect, device):
+        self._kdeconnect = kdeconnect
         self._device = device
         self._state = None
 
+    def _get_device_property(self, prop_name):
+        msg = new_method_call(self._device, prop_name)
+        return self._kdeconnect.conn.send_and_get_reply(msg)
+
     @property
     def name(self):
-        return f"{self._device.deviceName()} Battery"
+        return f"{self._get_device_property('deviceName')} Battery"
 
     @property
     def device_class(self):
@@ -35,8 +41,8 @@ class KDEConnectBatterySensor(Entity):
         return "%"
 
     def update(self):
-        battery_iface = dbus.Interface(self._device, "org.kde.kdeconnect.device.battery")
-        self._state = battery_iface.charge()
+        battery_charge_msg = new_method_call(self._device, 'charge')
+        self._state = self._kdeconnect.conn.send_and_get_reply(battery_charge_msg)
 
 class KDEConnectNetworkSensor(Entity):
     def __init__(self, device):
@@ -49,4 +55,4 @@ class KDEConnectNetworkSensor(Entity):
 
     @property
     def state(self):
-        return self
+        return self._state

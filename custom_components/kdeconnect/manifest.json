@@ -5,7 +5,7 @@
     "documentation": "https://github.com/jannis3005/homeassistantkdeconnect",
     "dependencies": [],
     "codeowners": ["@jannis3005"],
-    "requirements": ["dbus-python==1.2.18"],
+    "requirements": ["jeepney==0.8.0"],
     "iot_class": "local",
     "config_flow": true
 }

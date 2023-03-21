@@ -1,33 +1,46 @@
 import logging
-import dbus
 import voluptuous as vol
 from homeassistant import config_entries, core
+
+from jeepney import DBusAddress, new_method_call
+from jeepney.integrate.blocking import connect_and_authenticate
 
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "kdeconnect"
 
+
 class KDEConnect:
     def __init__(self, device_name):
         self.device_name = device_name
-        self.bus = dbus.SessionBus()
-        self.kdeconnectd_proxy = self.bus.get_object("org.kde.kdeconnect", "/modules/kdeconnect")
-        self.kdeconnectd_iface = dbus.Interface(self.kdeconnectd_proxy, "org.kde.kdeconnect.daemon")
+        self.conn = connect_and_authenticate(bus='SESSION')
+        self.kdeconnectd_addr = DBusAddress('/modules/kdeconnect',
+                                            'org.kde.kdeconnect.daemon',
+                                            'org.kde.kdeconnect')
 
     def get_device(self):
-        devices = self.kdeconnectd_iface.devices()
+        devices_msg = new_method_call(self.kdeconnectd_addr, 'devices')
+        devices = self.conn.send_and_get_reply(devices_msg)
+
         for device_id in devices:
-            device_proxy = self.bus.get_object("org.kde.kdeconnect", f"/modules/kdeconnect/devices/{device_id}")
-            device_iface = dbus.Interface(device_proxy, "org.kde.kdeconnect.device")
-            if device_iface.deviceName() == self.device_name:
-                return device_iface
+            device_addr = DBusAddress(f'/modules/kdeconnect/devices/{device_id}',
+                                      'org.kde.kdeconnect.device',
+                                      'org.kde.kdeconnect')
+            device_name_msg = new_method_call(device_addr, 'deviceName')
+            device_name = self.conn.send_and_get_reply(device_name_msg)
+
+            if device_name == self.device_name:
+                return device_addr
+
         return None
 
     def pair_device(self):
         device = self.get_device()
         if device:
-            device.requestPair()
+            pair_request_msg = new_method_call(device, 'requestPair')
+            self.conn.send_message(pair_request_msg)
         else:
             _LOGGER.error(f"Device with name '{self.device_name}' not found")
+
 
 async def async_setup(hass: core.HomeAssistant, config: dict):
     hass.async_create_task(
@@ -36,6 +49,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict):
         )
     )
     return True
+
 
 class KDEConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
